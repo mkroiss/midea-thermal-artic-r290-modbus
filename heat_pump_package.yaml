@@ -1,0 +1,36 @@
+input_number:
+  hp_target_temp:
+    name: HP Target Temp
+    min: 25
+    max: 55
+    step: 1
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer
+
+shell_command:
+  set_hp_target: "python3 /config/set_target.py {{ states('input_number.hp_target_temp') | int }}"
+
+automation:
+  - alias: "HP Write Target Temp"
+    trigger:
+      - platform: state
+        entity_id: input_number.hp_target_temp
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state != states('sensor.hp_current_target') }}"
+    action:
+      - service: shell_command.set_hp_target
+
+  - alias: "HP Sync Target Temp"
+    trigger:
+      - platform: state
+        entity_id: sensor.hp_current_target
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.state not in ['unknown', 'unavailable'] and trigger.to_state.state != states('input_number.hp_target_temp') | int | string }}"
+    action:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.hp_target_temp
+        data:
+          value: "{{ trigger.to_state.state | int }}"

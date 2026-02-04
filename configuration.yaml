@@ -1,0 +1,291 @@
+homeassistant:
+  packages:
+    heat_pump: !include heat_pump_package.yaml
+
+default_config:
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+lovelace:
+  mode: storage
+  dashboards:
+    heat-pump:
+      mode: yaml
+      filename: heat_pump_dashboard.yaml
+      title: Heat Pump
+      icon: mdi:heat-pump-outline
+
+template:
+  - sensor:
+      - name: "HP Mode Text"
+        state: >
+          {% set mode = states('sensor.hp_operating_mode') | int(0) %}
+          {% if mode == 0 %}⚫ Off
+          {% elif mode == 2 %}❄️ Cool
+          {% elif mode == 3 %}🔥 Heat
+          {% elif mode == 5 %}🚿 DHW
+          {% else %}❓ {{ mode }}
+          {% endif %}
+      - name: "HP State Text"
+        state: >
+          {% set state = states('sensor.hp_operating_state') | int(0) %}
+          {% if state == 0 %}💤 Idle
+          {% elif state == 2 %}❄️ Cool
+          {% elif state == 3 %}🔥 Heat
+          {% else %}❓ {{ state }}
+          {% endif %}
+      - name: "HP Current Target"
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state: >
+          {{ states('sensor.hp_target_raw') | int(0) % 256 }}
+      - name: "HP Power Consumption"
+        unit_of_measurement: "kW"
+        device_class: power
+        state_class: measurement
+        state: >
+          {{ (states('sensor.hp_power_raw') | float(0) / 100) | round(2) }}
+      - name: "HP ODU Power"
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {{ (states('sensor.hp_odu_current') | float(0) *
+              states('sensor.hp_odu_voltage') | float(0)) | round(0) }}
+      - name: "HP COP Filtered"
+        unit_of_measurement: ""
+        state_class: measurement
+        state: >
+          {% set cop = states('sensor.hp_cop') | float(0) %}
+          {% if cop > 0 and cop <= 10 %}{{ cop }}
+          {% else %}{{ 'unavailable' }}
+          {% endif %}
+      - name: "HP Delta T"
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state: >
+          {{ (states('sensor.hp_outlet_water_temp') | float(0) -
+              states('sensor.hp_water_inlet_temp') | float(0)) | round(1) }}
+
+
+modbus:
+  - name: midea
+    type: tcp
+    host: 192.168.178.121
+    port: 8899
+    delay: 1
+    timeout: 5
+
+    sensors:
+      # === Temperatures ===
+      - name: "HP Outlet Water Temp"
+        unique_id: midea_outlet_water
+        slave: 2
+        address: 110
+        input_type: holding
+        data_type: int16
+        unit_of_measurement: "°C"
+        device_class: temperature
+        precision: 1
+        scan_interval: 30
+
+      - name: "HP Water Inlet Temp"
+        unique_id: midea_water_inlet
+        slave: 2
+        address: 104
+        input_type: holding
+        data_type: int16
+        unit_of_measurement: "°C"
+        device_class: temperature
+        precision: 1
+        scan_interval: 30
+
+      - name: "HP Water Out Temp"
+        unique_id: midea_water_out
+        slave: 2
+        address: 105
+        input_type: holding
+        data_type: int16
+        unit_of_measurement: "°C"
+        device_class: temperature
+        precision: 1
+        scan_interval: 30
+
+      - name: "HP Condenser Temp"
+        unique_id: midea_condenser
+        slave: 2
+        address: 106
+        input_type: holding
+        data_type: int16
+        unit_of_measurement: "°C"
+        device_class: temperature
+        precision: 1
+        scan_interval: 30
+
+      - name: "HP Outdoor Temp"
+        unique_id: midea_outdoor_temp
+        slave: 2
+        address: 107
+        input_type: holding
+        data_type: int16
+        unit_of_measurement: "°C"
+        device_class: temperature
+        precision: 1
+        scan_interval: 30
+
+      - name: "HP Discharge Temp"
+        unique_id: midea_discharge_temp
+        slave: 2
+        address: 108
+        input_type: holding
+        data_type: int16
+        unit_of_measurement: "°C"
+        device_class: temperature
+        precision: 1
+        scan_interval: 30
+
+      - name: "HP Suction Temp"
+        unique_id: midea_suction_temp
+        slave: 2
+        address: 109
+        input_type: holding
+        data_type: int16
+        unit_of_measurement: "°C"
+        device_class: temperature
+        precision: 1
+        scan_interval: 30
+
+      # === Pressures ===
+      - name: "HP High Pressure"
+        unique_id: midea_high_pressure
+        slave: 2
+        address: 116
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "kPa"
+        device_class: pressure
+        scan_interval: 30
+
+      - name: "HP Low Pressure"
+        unique_id: midea_low_pressure
+        slave: 2
+        address: 117
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "kPa"
+        device_class: pressure
+        scan_interval: 30
+
+      # === Electrical ===
+      - name: "HP ODU Current"
+        unique_id: midea_odu_current
+        slave: 2
+        address: 118
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "A"
+        device_class: current
+        scan_interval: 30
+
+      - name: "HP ODU Voltage"
+        unique_id: midea_odu_voltage
+        slave: 2
+        address: 119
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "V"
+        device_class: voltage
+        scan_interval: 30
+
+      # === Operating Status ===
+      - name: "HP Compressor Frequency"
+        unique_id: midea_compressor_freq
+        slave: 2
+        address: 100
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "Hz"
+        device_class: frequency
+        scan_interval: 30
+
+      - name: "HP Operating State"
+        unique_id: midea_operating_state
+        slave: 2
+        address: 101
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+
+      - name: "HP Operating Mode"
+        unique_id: midea_operating_mode
+        slave: 2
+        address: 199
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+
+      # === Flow & Efficiency ===
+      - name: "HP Water Flow"
+        unique_id: midea_water_flow
+        slave: 2
+        address: 138
+        input_type: holding
+        data_type: uint16
+        unit_of_measurement: "m³/h"
+        scale: 0.01
+        precision: 2
+        scan_interval: 30
+
+      - name: "HP COP"
+        unique_id: midea_cop
+        slave: 2
+        address: 151
+        input_type: holding
+        data_type: uint16
+        scale: 0.01
+        precision: 2
+        state_class: measurement
+        scan_interval: 30
+
+      # === Target (raw, Zone1+Zone2 packed) ===
+      - name: "HP Target Raw"
+        unique_id: midea_target_raw
+        slave: 2
+        address: 2
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+
+      # === Power ===
+      - name: "HP Power Raw"
+        unique_id: midea_power_raw
+        slave: 2
+        address: 150
+        input_type: holding
+        data_type: uint16
+        scan_interval: 30
+
+      # === Error ===
+      - name: "HP Error Code"
+        unique_id: midea_error_code
+        slave: 2
+        address: 124
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+
+    switches:
+      - name: "HP Power"
+        unique_id: midea_power
+        slave: 2
+        address: 16
+        write_type: holding
+        command_on: 1
+        command_off: 0
+        scan_interval: 30
+
