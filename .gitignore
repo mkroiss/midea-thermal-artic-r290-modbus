@@ -1,5 +1,23 @@
-# Gitignore settings for ESPHome
-# This is an example and may include too much for your use-case.
-# You can modify this file to suit your needs.
-/.esphome/
-/secrets.yaml
+# IDE
+.idea/
+.vscode/
+
+# Claude Code
+.claude/
+
+# Old ESP32 files (abandoned approach)
+_esp_old/
+.esphome/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Secrets
+secrets.yaml
+
+# OS
+.DS_Store
+Thumbs.db

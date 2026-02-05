@@ -71,7 +71,28 @@ template:
         state: >
           {{ (states('sensor.hp_outlet_water_temp') | float(0) -
               states('sensor.hp_water_inlet_temp') | float(0)) | round(1) }}
+      - name: "HP Energy Total"
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        state: >
+          {% set high = states('sensor.hp_energy_high') | int(0) %}
+          {% set low = states('sensor.hp_energy_low') | int(0) %}
+          {{ ((high * 65536 + low) / 100) | round(2) }}
 
+utility_meter:
+  hp_energy_daily:
+    source: sensor.hp_energy_total
+    name: HP Energy Daily
+    cycle: daily
+  hp_energy_monthly:
+    source: sensor.hp_energy_total
+    name: HP Energy Monthly
+    cycle: monthly
+  hp_energy_yearly:
+    source: sensor.hp_energy_total
+    name: HP Energy Yearly
+    cycle: yearly
 
 modbus:
   - name: midea
@@ -278,6 +299,24 @@ modbus:
         input_type: holding
         data_type: uint16
         scan_interval: 60
+
+      # === Cumulative Energy (high bits) ===
+      - name: "HP Energy High"
+        unique_id: midea_energy_high
+        slave: 2
+        address: 143
+        input_type: holding
+        data_type: uint16
+        scan_interval: 300
+
+      # === Cumulative Energy (low bits) ===
+      - name: "HP Energy Low"
+        unique_id: midea_energy_low
+        slave: 2
+        address: 144
+        input_type: holding
+        data_type: uint16
+        scan_interval: 300
 
     switches:
       - name: "HP Power"

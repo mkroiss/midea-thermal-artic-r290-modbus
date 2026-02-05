@@ -1,160 +1,165 @@
 views:
   - title: Heat Pump
     icon: mdi:heat-pump-outline
+    panel: true
     cards:
-      # === Power, Target ===
-      - type: horizontal-stack
+      - type: vertical-stack
         cards:
-          - type: entity
-            entity: switch.hp_power
-            name: Power
-            icon: mdi:power
-          - type: tile
-            entity: input_number.hp_target_temp
-            name: Target
-            features:
-              - type: numeric-input
-                style: buttons
+          # === Power, Target, Mode, State, Error ===
+          - type: horizontal-stack
+            cards:
+              - type: entity
+                entity: switch.hp_power
+                name: Power
+                icon: mdi:power
+              - type: tile
+                entity: input_number.hp_target_temp
+                name: Target
+                features:
+                  - type: numeric-input
+                    style: buttons
+              - type: entity
+                entity: sensor.hp_mode_text
+                name: Mode
+              - type: entity
+                entity: sensor.hp_state_text
+                name: State
+              - type: entity
+                entity: sensor.hp_error_code
+                name: Error
+                icon: mdi:alert-circle-outline
 
-      # === Mode, State ===
-      - type: horizontal-stack
-        cards:
-          - type: entity
-            entity: sensor.hp_mode_text
-            name: Mode
-          - type: entity
-            entity: sensor.hp_state_text
-            name: State
+          # === Current Water Temps ===
+          - type: horizontal-stack
+            cards:
+              - type: entity
+                entity: sensor.hp_water_inlet_temp
+                name: Inlet
+                icon: mdi:thermometer-chevron-down
+              - type: entity
+                entity: sensor.hp_outlet_water_temp
+                name: Outlet
+                icon: mdi:thermometer-chevron-up
+              - type: entity
+                entity: sensor.hp_delta_t
+                name: Delta T
+                icon: mdi:thermometer-lines
+              - type: entity
+                entity: sensor.hp_water_flow
+                name: Water Flow
+                icon: mdi:water-pump
 
-      # === Flow, Power ===
-      - type: horizontal-stack
-        cards:
-          - type: entity
-            entity: sensor.hp_water_flow
-            name: Water Flow
-            icon: mdi:water-pump
-          - type: entity
-            entity: sensor.hp_power_consumption
-            name: Power
-            icon: mdi:lightning-bolt
+          # === Water Temperatures (24h history) ===
+          - type: history-graph
+            title: Water Temperatures
+            hours_to_show: 24
+            entities:
+              - entity: sensor.hp_outlet_water_temp
+                name: Outlet (T1)
+              - entity: sensor.hp_water_inlet_temp
+                name: Inlet (Tw_in)
+              - entity: sensor.hp_outdoor_temp
+                name: Outdoor (T4)
 
-      # === Current Water Temps ===
-      - type: horizontal-stack
-        cards:
-          - type: entity
-            entity: sensor.hp_water_inlet_temp
-            name: Inlet
-            icon: mdi:thermometer-chevron-down
-          - type: entity
-            entity: sensor.hp_outlet_water_temp
-            name: Outlet
-            icon: mdi:thermometer-chevron-up
-          - type: entity
-            entity: sensor.hp_delta_t
-            name: Delta T
-            icon: mdi:thermometer-lines
+          # === Electrical ===
+          - type: horizontal-stack
+            cards:
+              - type: entity
+                entity: sensor.hp_power_consumption
+                name: Power
+                icon: mdi:lightning-bolt
+              - type: entity
+                entity: sensor.hp_energy_daily
+                name: Today
+                icon: mdi:counter
+              - type: entity
+                entity: sensor.hp_odu_current
+                name: ODU Current
+                icon: mdi:current-ac
+              - type: entity
+                entity: sensor.hp_odu_voltage
+                name: ODU Voltage
+                icon: mdi:flash
+              - type: entity
+                entity: sensor.hp_odu_power
+                name: ODU Power
+                icon: mdi:lightning-bolt
 
-      # === Water Temperatures (24h history) ===
-      - type: history-graph
-        title: Water Temperatures
-        hours_to_show: 24
-        entities:
-          - entity: sensor.hp_outlet_water_temp
-            name: Outlet (T1)
-          - entity: sensor.hp_water_inlet_temp
-            name: Inlet (Tw_in)
-          - entity: sensor.hp_outdoor_temp
-            name: Outdoor (T4)
+          # === Power History ===
+          - type: statistics-graph
+            title: Power
+            entities:
+              - entity: sensor.hp_power_consumption
+              - entity: sensor.hp_odu_power
+            stat_types:
+              - mean
+            period: 5minute
+            days_to_show: 2
 
-      # === Refrigerant Circuit (24h history) ===
-      - type: history-graph
-        title: Refrigerant Circuit
-        hours_to_show: 24
-        entities:
-          - entity: sensor.hp_condenser_temp
-            name: Condenser (T3)
-          - entity: sensor.hp_discharge_temp
-            name: Discharge (Tp)
-          - entity: sensor.hp_suction_temp
-            name: Suction (Th)
+          # === Compressor & Pressure ===
+          - type: horizontal-stack
+            cards:
+              - type: entity
+                entity: sensor.hp_compressor_frequency
+                name: Compressor
+                icon: mdi:sine-wave
+              - type: gauge
+                entity: sensor.hp_high_pressure
+                name: High Pressure
+                min: 0
+                max: 4000
+                unit: kPa
+                severity:
+                  green: 0
+                  yellow: 2500
+                  red: 3500
+              - type: gauge
+                entity: sensor.hp_low_pressure
+                name: Low Pressure
+                min: 0
+                max: 1500
+                unit: kPa
+                severity:
+                  green: 200
+                  yellow: 100
+                  red: 0
 
-      # === Pressure Gauges ===
-      - type: horizontal-stack
-        cards:
-          - type: gauge
-            entity: sensor.hp_high_pressure
-            name: High Pressure
-            min: 0
-            max: 4000
-            unit: kPa
-            severity:
-              green: 0
-              yellow: 2500
-              red: 3500
-          - type: gauge
-            entity: sensor.hp_low_pressure
-            name: Low Pressure
-            min: 0
-            max: 1500
-            unit: kPa
-            severity:
-              green: 200
-              yellow: 100
-              red: 0
+          # === Compressor History ===
+          - type: history-graph
+            title: Compressor History
+            hours_to_show: 24
+            entities:
+              - entity: sensor.hp_compressor_frequency
+                name: Compressor Hz
 
-      # === Compressor & Error ===
-      - type: horizontal-stack
-        cards:
-          - type: entity
-            entity: sensor.hp_compressor_frequency
-            name: Compressor
-            icon: mdi:sine-wave
-          - type: entity
-            entity: sensor.hp_error_code
-            name: Error
-            icon: mdi:alert-circle-outline
+          # === Refrigerant Circuit (24h history) ===
+          - type: history-graph
+            title: Refrigerant Circuit
+            hours_to_show: 24
+            entities:
+              - entity: sensor.hp_condenser_temp
+                name: Condenser (T3)
+              - entity: sensor.hp_discharge_temp
+                name: Discharge (Tp)
+              - entity: sensor.hp_suction_temp
+                name: Suction (Th)
 
-      # === Electrical ===
-      - type: horizontal-stack
-        cards:
-          - type: entity
-            entity: sensor.hp_odu_current
-            name: ODU Current
-            icon: mdi:current-ac
-          - type: entity
-            entity: sensor.hp_odu_voltage
-            name: ODU Voltage
-            icon: mdi:flash
-          - type: entity
-            entity: sensor.hp_odu_power
-            name: ODU Power
-            icon: mdi:lightning-bolt
+          # === COP History ===
+          - type: statistics-graph
+            title: COP
+            entities:
+              - entity: sensor.hp_cop_filtered
+            stat_types:
+              - mean
+            period: 5minute
+            days_to_show: 1
 
-      # === Power History ===
-      - type: statistics-graph
-        title: Power
-        entities:
-          - entity: sensor.hp_power_consumption
-          - entity: sensor.hp_odu_power
-        stat_types:
-          - mean
-        period: 5minute
-        days_to_show: 2
-
-      # === COP History ===
-      - type: statistics-graph
-        title: COP
-        entities:
-          - entity: sensor.hp_cop_filtered
-        stat_types:
-          - mean
-        period: 5minute
-        days_to_show: 1
-
-      # === Compressor History ===
-      - type: history-graph
-        title: Compressor History
-        hours_to_show: 24
-        entities:
-          - entity: sensor.hp_compressor_frequency
-            name: Compressor Hz
+          # === Daily Energy ===
+          - type: statistics-graph
+            title: Daily Energy (kWh)
+            entities:
+              - entity: sensor.hp_energy_daily
+            stat_types:
+              - change
+            period: day
+            days_to_show: 30
