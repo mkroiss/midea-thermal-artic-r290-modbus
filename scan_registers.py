@@ -848,10 +848,23 @@ def scan_registers():
     for addr in sorted(all_values.keys()):
         val = all_values[addr]
         if addr in REGISTERS:
-            name, desc, used, _ = REGISTERS[addr]
+            name, desc, used, detail = REGISTERS[addr]
             formatted = format_value(addr, val)
             marker = "  " if used else "* "
             print(f'{marker}{addr:<5} {name:<30} {formatted:<25} {desc}')
+            if detail:
+                # Wrap detailed description to ~90 chars per line
+                indent = "        "
+                words = detail.split()
+                line = indent
+                for word in words:
+                    if len(line) + len(word) + 1 > 95:
+                        print(line)
+                        line = indent + word
+                    else:
+                        line = line + " " + word if line != indent else indent + word
+                if line != indent:
+                    print(line)
         elif val != 0 and val != 0x7FFF and val != 0x7F and val != 0xFFFF and val != 255:
             # Unknown register with non-zero value
             print(f'? {addr:<5} {"(unknown)":<30} {val:<25}')
