@@ -36,7 +36,7 @@ Heat Pump (Wired Controller) → EW11-A → WiFi → Home Assistant
 |------|-------------|
 | `configuration.yaml` | Home Assistant config with Modbus sensors, template sensors, utility meters |
 | `heat_pump_dashboard.yaml` | Lovelace dashboard for heat pump monitoring |
-| `heat_pump_package.yaml` | HA package with input_number, shell_command, automation for target temp |
+| `heat_pump_package_target_control.yaml` | HA package with input_number, shell_command, automation for target temp |
 | `set_target.py` | Python script to write target temperature (called by HA automation) |
 | `scan_registers.py` | Modbus register scanner with full documentation |
 | `register_dump.txt` | Complete register dump with values and descriptions |

@@ -126,7 +126,7 @@ views:
 
           # === Compressor History ===
           - type: history-graph
-            title: Compressor History
+            title: Compressor Frequency
             hours_to_show: 24
             entities:
               - entity: sensor.hp_compressor_frequency
@@ -158,8 +158,31 @@ views:
           - type: statistics-graph
             title: Daily Energy (kWh)
             entities:
-              - entity: sensor.hp_energy_daily
+              - entity: sensor.hp_energy_total
+            chart_type: bar
             stat_types:
               - change
             period: day
             days_to_show: 30
+
+          # === Monthly Energy ===
+          - type: statistics-graph
+            title: Monthly Energy (kWh)
+            entities:
+              - entity: sensor.hp_energy_total
+            chart_type: bar
+            stat_types:
+              - change
+            period: month
+            days_to_show: 365
+
+          # === Yearly Energy ===
+          - type: statistics-graph
+            title: Yearly Energy (kWh)
+            entities:
+              - entity: sensor.hp_energy_total
+            chart_type: bar
+            stat_types:
+              - change
+            period: year
+            days_to_show: 1825

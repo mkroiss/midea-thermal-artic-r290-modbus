@@ -1,6 +1,6 @@
 homeassistant:
   packages:
-    heat_pump: !include heat_pump_package.yaml
+    heat_pump: !include heat_pump_package_target_control.yaml
 
 default_config:
 
@@ -72,9 +72,14 @@ template:
           {{ (states('sensor.hp_outlet_water_temp') | float(0) -
               states('sensor.hp_water_inlet_temp') | float(0)) | round(1) }}
       - name: "HP Energy Total"
+        unique_id: hp_energy_total
         unit_of_measurement: "kWh"
         device_class: energy
         state_class: total_increasing
+        availability: >
+          {{ states('sensor.hp_energy_high') not in ['unknown', 'unavailable']
+             and states('sensor.hp_energy_low') not in ['unknown', 'unavailable']
+             and (states('sensor.hp_energy_high') | int(0) + states('sensor.hp_energy_low') | int(0)) > 0 }}
         state: >
           {% set high = states('sensor.hp_energy_high') | int(0) %}
           {% set low = states('sensor.hp_energy_low') | int(0) %}
@@ -82,14 +87,17 @@ template:
 
 utility_meter:
   hp_energy_daily:
+    unique_id: hp_energy_daily
     source: sensor.hp_energy_total
     name: HP Energy Daily
     cycle: daily
   hp_energy_monthly:
+    unique_id: hp_energy_monthly
     source: sensor.hp_energy_total
     name: HP Energy Monthly
     cycle: monthly
   hp_energy_yearly:
+    unique_id: hp_energy_yearly
     source: sensor.hp_energy_total
     name: HP Energy Yearly
     cycle: yearly
