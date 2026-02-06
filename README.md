@@ -2,6 +2,8 @@
 
 Home Assistant integration for Midea M-Thermal Arctic R290 heat pumps via Modbus RTU over TCP.
 
+![Home Assistant Dashboard](resources/home-assistant-dashboard.png)
+
 ## Hardware Setup
 
 - **Heat Pump**: Midea Thermal Arctic R290 10kW
@@ -64,7 +66,7 @@ For full EW11-A settings see:
 
 ## Register Documentation
 
-See `register_dump.txt` for complete Modbus register documentation, or run:
+See [register_dump.txt](register_dump.txt) for complete Modbus register documentation, or run:
 
 ```bash
 python scan_registers.py

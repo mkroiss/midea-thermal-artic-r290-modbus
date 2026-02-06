@@ -25,6 +25,7 @@ Heat Pump (RS-485 H1/H2) → EW11-A → WiFi → Home Assistant (Modbus TCP)
 - Parity: None
 - Stop Bits: 1
 - Mode: Modbus TCP to RTU gateway (must be "Modbus" mode, not transparent TCP)
+- Full settings: [STA mode](resources/ew11-sta-settings.md) | [AP mode (hardened)](resources/ew11-ap-settings.md) | [Hardening plan](resources/ew11-hardening-plan.md)
 
 ### Home Assistant Configuration
 - **Pi IP**: 192.168.178.107 (user: makro)

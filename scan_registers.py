@@ -1,3 +1,20 @@
+#!/usr/bin/env python3
+"""Scan and dump all Modbus registers from Midea M-Thermal Arctic R290 heat pump.
+
+Reads all known registers (0-22, 100-199, 200-290), formats values with
+proper scaling, and outputs a complete register dump with descriptions.
+Output goes to both console and register_dump.txt.
+
+Usage: python scan_registers.py
+
+Connection: EW11-A gateway at 192.168.178.121:8899 (change to 10.10.100.254
+after AP mode hardening), Modbus slave address 2.
+
+Note: Registers 200-290 must be read individually (bulk read returns
+exception code 2). This makes the scan slower for that range.
+
+Requires: pip install pymodbus
+"""
 from pymodbus.client import ModbusTcpClient
 
 # Midea Modbus Register Scanner
