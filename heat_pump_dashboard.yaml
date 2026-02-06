@@ -61,6 +61,26 @@ views:
               - entity: sensor.hp_outdoor_temp
                 name: Outdoor (T4)
 
+          # === Energy Summary ===
+          - type: horizontal-stack
+            cards:
+              - type: entity
+                entity: sensor.hp_energy_daily
+                name: Today
+                icon: mdi:counter
+              - type: entity
+                entity: sensor.hp_energy_monthly
+                name: Month
+                icon: mdi:calendar-month
+              - type: entity
+                entity: sensor.hp_energy_yearly
+                name: Year
+                icon: mdi:calendar
+              - type: entity
+                entity: sensor.hp_energy_total
+                name: Total
+                icon: mdi:sigma
+
           # === Electrical ===
           - type: horizontal-stack
             cards:
@@ -68,10 +88,6 @@ views:
                 entity: sensor.hp_power_consumption
                 name: Power
                 icon: mdi:lightning-bolt
-              - type: entity
-                entity: sensor.hp_energy_daily
-                name: Today
-                icon: mdi:counter
               - type: entity
                 entity: sensor.hp_odu_current
                 name: ODU Current
