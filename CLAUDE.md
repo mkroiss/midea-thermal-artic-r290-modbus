@@ -65,7 +65,8 @@ Heat Pump (RS-485 H1/H2) → EW11-A → WiFi → Home Assistant (Modbus TCP)
 - 65535 (0xFFFF) and 255 (0xFF) = "not available" or "no sensor"
 
 ## Reference Documentation
-- `resources/120L-modbus-0052003044313-V-E.pdf` - Modbus mapping table
+- `resources/midea-modbus-protocol.pdf` - Modbus mapping table
+- `resources/elfin-ew11-user-manual.pdf` - EW11-A user manual
 - `register_dump.txt` - Complete register dump with values and descriptions
 - `scan_registers.py` - Register scanner with full documentation per register
 
