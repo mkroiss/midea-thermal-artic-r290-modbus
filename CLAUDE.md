@@ -34,6 +34,8 @@ Heat Pump (RS-485 H1/H2) → EW11-A → WiFi → Home Assistant (Modbus TCP)
 - Config file: `/root/homeassistant/config/configuration.yaml`
 - Docker container: `home-assistant`
 - Docker image: `ghcr.io/home-assistant/home-assistant:stable`
+- HA version: 2026.4.4
+- Backup: `/home/makro/ha_backup/ha-backup.sh`, daily 3am, uploads to `pcloud:backup/homeassistant`, 30-day retention
 
 ### System Configuration
 - Zone 1 only (no Zone 2)

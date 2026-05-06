@@ -33,6 +33,10 @@ views:
           - type: horizontal-stack
             cards:
               - type: entity
+                entity: sensor.hp_outdoor_temp
+                name: Outdoor
+                icon: mdi:thermometer
+              - type: entity
                 entity: sensor.hp_water_inlet_temp
                 name: Inlet
                 icon: mdi:thermometer-chevron-down
