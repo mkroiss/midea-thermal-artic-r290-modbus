@@ -19,7 +19,7 @@ views:
                   - type: numeric-input
                     style: buttons
               - type: entity
-                entity: sensor.hp_mode_text
+                entity: select.hp_mode
                 name: Mode
               - type: entity
                 entity: sensor.hp_state_text

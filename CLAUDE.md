@@ -86,11 +86,11 @@ Heat Pump (RS-485 H1/H2) → EW11-A → WiFi → Home Assistant (Modbus TCP)
 ### Control Registers (Read/Write)
 | Address | PLC | Description | Values |
 |---------|-----|-------------|--------|
-| 0 | 40001 | Power on/off | Bit field (see docs) |
+| 0 | 40001 | Power on/off | Bit field: Bit0=Zone1/2 room, Bit1=Zone1 water, Bit2=DHW, Bit3=Zone2 water. Zone1 water only = 2 |
 | 1 | 40002 | Mode setting | 1=Auto, 2=Cooling, 3=Heating |
 | 2 | 40003 | Set water temp T1s | Zone1 (low 8 bits), Zone2 (high 8 bits) |
 | 11 | 40012 | T1s Zone 1 | Water temp setpoint (preferred over reg 2) |
-| 16 | 40017 | Power Zone 1 | 0=off, 1=on |
+| 16 | 40017 | Power Zone 1 | Zone1 water temp control subsystem only — reg 0 is the real power switch |
 
 ### Sensor Registers (Read Only)
 | Address | PLC | Description | Unit |
@@ -115,8 +115,9 @@ Heat Pump (RS-485 H1/H2) → EW11-A → WiFi → Home Assistant (Modbus TCP)
 | 151 | 40152 | COP | x0.01 |
 | 199 | 40200 | Operation mode | 0=Off, 2=Cooling, 3=Heating, 5=DHW |
 
-### Template Sensors
-- **HP Mode Text** - Operating mode as text (Off/Cool/Heat/DHW)
+### Template Sensors & Controls
+- **HP Mode** - Mode select (Auto/Cooling/Heating), reads reg 1, writes via modbus.write_register
+- **HP Mode Text** - Operating mode as text (Off/Cool/Heat/DHW), reads reg 199 (read-only)
 - **HP State Text** - Operating state as text (Idle/Cool/Heat)
 - **HP Current Target** - Zone 1 target extracted from packed register 2
 - **HP Power Consumption** - Power raw / 100 in kW
@@ -140,5 +141,5 @@ Heat Pump (RS-485 H1/H2) → EW11-A → WiFi → Home Assistant (Modbus TCP)
 - [x] Add energy tracking (daily/monthly/yearly)
 - [x] Create register scanner with documentation
 - [x] Publish on GitHub
-- [ ] Add mode control (auto/heating/cooling)
+- [x] Add mode control (auto/heating/cooling) — enabled cooling via reg 210 bit 9, template select on reg 1
 - [ ] Improve EW11-A WiFi signal (-96 dBm is marginal)

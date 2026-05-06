@@ -119,7 +119,8 @@ Config directory: `/root/homeassistant/config/`
 ## Features
 
 - Real-time monitoring: temperatures, pressures, compressor frequency, COP
-- Power control via Modbus switch
+- Power on/off control via Modbus (register 0)
+- Mode control: Auto / Heating / Cooling (register 1)
 - Target temperature adjustment with +/- buttons
 - Energy tracking (daily/monthly/yearly)
 - Historical graphs for temperatures, power, COP
@@ -130,8 +131,10 @@ Config directory: `/root/homeassistant/config/`
 
 | Address | Name | Description |
 |--------:|:-----|:------------|
+|       0 | Power on/off | Bit field: Bit1=Zone1 water (0b0010=2 for Zone1-only), 0=off |
+|       1 | Mode setting | 1=Auto, 2=Cooling, 3=Heating |
 |       2 | Set water temp T1s | Zone1 target (low byte), Zone2 (high byte) |
-|      16 | Power Zone 1 | 0=off, 1=on (used as switch) |
+|      16 | Power Zone 1 | Zone1 water temp subsystem switch (reg 0 is the real power control) |
 |     100 | Compressor frequency | Current frequency in Hz, 0=off |
 |     101 | Operating state | 0=off, 2=cooling active, 3=heating active |
 |     104 | Tw_in | Water inlet (return) temperature |

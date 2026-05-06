@@ -63,7 +63,7 @@ template:
         state: >
           {% set cop = states('sensor.hp_cop') | float(0) %}
           {% if cop > 0 and cop <= 10 %}{{ cop }}
-          {% else %}{{ 'unavailable' }}
+          {% else %}{{ none }}
           {% endif %}
       - name: "HP Delta T"
         unit_of_measurement: "°C"
@@ -84,6 +84,24 @@ template:
           {% set high = states('sensor.hp_energy_high') | int(0) %}
           {% set low = states('sensor.hp_energy_low') | int(0) %}
           {{ ((high * 65536 + low) / 100) | round(2) }}
+
+  - select:
+      - name: "HP Mode"
+        unique_id: hp_mode_select
+        options: "{{ ['Auto', 'Cooling', 'Heating'] }}"
+        state: >
+          {% set mode = states('sensor.hp_mode_raw') | int(0) %}
+          {% if mode == 1 %}Auto
+          {% elif mode == 2 %}Cooling
+          {% else %}Heating{% endif %}
+        select_option:
+          - action: modbus.write_register
+            data:
+              hub: midea
+              slave: 2
+              address: 1
+              value: >
+                {% if option == 'Auto' %}1{% elif option == 'Cooling' %}2{% else %}3{% endif %}
 
 utility_meter:
   hp_energy_daily:
@@ -281,6 +299,15 @@ modbus:
         state_class: measurement
         scan_interval: 30
 
+      # === Mode setting (raw) ===
+      - name: "HP Mode Raw"
+        unique_id: midea_mode_raw
+        slave: 2
+        address: 1
+        input_type: holding
+        data_type: uint16
+        scan_interval: 60
+
       # === Target (raw, Zone1+Zone2 packed) ===
       - name: "HP Target Raw"
         unique_id: midea_target_raw
@@ -330,9 +357,17 @@ modbus:
       - name: "HP Power"
         unique_id: midea_power
         slave: 2
-        address: 16
+        address: 0
         write_type: holding
-        command_on: 1
+        # Reg 0 bit field - set bits for your system, combine with OR:
+        #
+        #   Bit: 3    2    1    0
+        #        |    |    |    |
+        #        |    |    |    +-- Zone1/2 room temp control
+        #        |    |    +------- Zone1 water temp control  (this setup: 0b0010 = 2)
+        #        |    +------------ DHW power
+        #        +----------------- Zone2 water temp control
+        command_on: 2
         command_off: 0
         scan_interval: 30
 
