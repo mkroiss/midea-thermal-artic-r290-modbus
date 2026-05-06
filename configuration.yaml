@@ -123,7 +123,7 @@ utility_meter:
 modbus:
   - name: midea
     type: tcp
-    host: 192.168.178.121
+    host: 10.10.100.131
     port: 8899
     delay: 1
     timeout: 5

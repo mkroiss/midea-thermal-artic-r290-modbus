@@ -1,6 +1,6 @@
-# EW11-A Settings (STA Mode)
+# EW11-A Settings (Current — STA Mode on Pi AP)
 
-Current settings - EW11 connects to FritzBox WiFi as a client.
+EW11-A connects as a WiFi client to the Pi's isolated "leni" access point.
 
 ## System Settings
 
@@ -8,9 +8,9 @@ Current settings - EW11 connects to FritzBox WiFi as a client.
 | Setting | Value |
 |---------|-------|
 | User Name | admin |
-| Password | ******* |
+| Password | (strong password) |
 
-Web UI login. Anyone who can reach the EW11 on the network can access the config page. In STA mode, that's anyone on the FritzBox WiFi.
+Web UI is only reachable via SSH tunnel through the Pi — not exposed to the home network.
 
 ### Basic Settings
 | Setting | Value |
@@ -23,7 +23,8 @@ Web UI login. Anyone who can reach the EW11 on the network can access the config
 | DHCP | ON |
 | DNS | 223.5.5.5 |
 
-DHCP ON means the EW11 gets its IP from the FritzBox automatically. DNS 223.5.5.5 is Alibaba's public DNS (Chinese) - factory default. The EW11 doesn't actually use DNS since Modbus communication is IP-only.
+Gets IP from Pi's dnsmasq via DHCP reservation → always `10.10.100.131`.
+DNS is factory default (Alibaba) — irrelevant since EW11 doesn't use DNS.
 
 ### LAN Settings
 | Setting | Value |
@@ -32,23 +33,23 @@ DHCP ON means the EW11 gets its IP from the FritzBox automatically. DNS 223.5.5.
 | Mask | 255.255.255.0 |
 | DHCP Server | OFF |
 
-LAN settings are for AP mode. The 10.10.100.254 address is only reachable when the EW11 broadcasts its own WiFi network. DHCP Server was turned OFF since in STA mode the FritzBox handles IP assignment - leaving it ON could hand out rogue IPs to other devices.
+LAN settings are for AP mode only (unused in STA mode). DHCP Server OFF.
 
 ### WiFi Settings
 | Setting | Value |
 |---------|-------|
 | WiFi Mode | STA |
-| STA SSID | FRITZ!Box Fon WLAN 7360 |
-| STA KEY | ******* |
+| STA SSID | leni |
+| STA KEY | (AP password) |
 
-STA = station mode, the EW11 joins the FritzBox as a client. The STA KEY is the FritzBox WiFi password. Modbus TCP port 8899 is open to anyone on the network with no authentication.
+Connects to the Pi's isolated AP. Only the Pi is on this network.
 
 ### Telnet Settings
 | Setting | Value |
 |---------|-------|
 | Enable | OFF |
 
-Good. Telnet is unencrypted remote shell access.
+Off. Telnet is unencrypted.
 
 ### Web Settings
 | Setting | Value |
@@ -56,21 +57,25 @@ Good. Telnet is unencrypted remote shell access.
 | Enable | ON |
 | Web Port | 80 |
 
-The config page (HTTP, unencrypted). In STA mode, reachable from any device on the FritzBox network at http://192.168.178.121.
+Accessible only from within the 10.10.100.x network. From a PC, access via SSH tunnel:
+```bash
+ssh -L 8080:10.10.100.131:80 -f -N makro@192.168.178.107
+```
+Then open http://localhost:8080.
 
 ### NTP Settings
 | Setting | Value |
 |---------|-------|
 | Enable | OFF |
 
-Network time sync. Not needed - the EW11 has no logs or schedules that depend on accurate time.
+Not needed — no time-dependent features.
 
 ### Modbus TimeOut Settings
 | Setting | Value |
 |---------|-------|
 | Automatic | ON |
 
-How long the EW11 waits for a response from the heat pump on RS-485. Automatic calculates the timeout from the baud rate (9600). Leave as is unless there are communication issues.
+Calculates timeout from baud rate (9600). Leave as is.
 
 ## Serial Port Settings
 
@@ -82,7 +87,7 @@ How long the EW11 waits for a response from the heat pump on RS-485. Automatic c
 | Stop Bit | 1 |
 | Parity | None |
 
-Must match the Midea heat pump spec: 9600/8/N/1.
+Must match Midea heat pump spec: 9600/8/N/1.
 
 ### Buffer Settings
 | Setting | Value |
@@ -90,27 +95,25 @@ Must match the Midea heat pump spec: 9600/8/N/1.
 | Buffer Size | 512 |
 | Gap Time | 50 |
 
-Buffer size is fine (Modbus max frame is 256 bytes). Gap Time (50ms) is the inter-frame silence between Modbus messages.
+Buffer covers max Modbus frame (256 bytes). Gap time (50ms) handles inter-frame silence.
 
 ### Flow Control Settings
 | Setting | Value |
 |---------|-------|
 | Flow Control | Half Duplex |
 
-Correct for 2-wire RS-485 (H1/H2). Half duplex means only one side talks at a time. The EW11 handles transmit/receive direction switching automatically. Other options (None, Hardware) are for RS-232 or 4-wire RS-485.
+Correct for 2-wire RS-485. EW11 handles TX/RX direction switching automatically.
 
 ### Cli Settings
 | Setting | Value |
 |---------|-------|
-| Cli | Serial String |
-| Serial String | +++ |
-| Waiting Time | 300 |
+| Cli | None |
 
-AT command escape sequence. Sending `+++` with 300ms silence before and after drops into the EW11's configuration CLI. In Modbus protocol mode this is likely ignored, but it's an unnecessary attack surface.
+Disabled. The `+++` AT escape sequence is not needed and is an unnecessary attack surface.
 
 ### Protocol Settings
 | Setting | Value |
 |---------|-------|
 | Protocol | Modbus |
 
-Must be Modbus (not transparent TCP). The EW11 acts as a Modbus TCP to RTU gateway - it converts TCP frames to RS-485 RTU frames and passes the slave address through transparently.
+Modbus TCP to RTU gateway mode. Converts TCP frames to RS-485 RTU, passes slave address through transparently.

@@ -29,8 +29,7 @@ Heat Pump (Wired Controller) → EW11-A → WiFi → Home Assistant
 
 For full EW11-A settings see:
 - [Current STA mode settings](resources/ew11-sta-settings.md)
-- [Hardened AP mode settings](resources/ew11-ap-settings.md)
-- [Hardening plan](resources/ew11-hardening-plan.md)
+- [AP mode settings (alternative)](resources/ew11-ap-settings.md)
 
 ### Modbus Settings
 

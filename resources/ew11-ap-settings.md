@@ -1,6 +1,6 @@
-# EW11-A Settings (AP Mode - Hardened)
+# EW11-A Settings (AP Mode)
 
-Hardened settings - EW11 runs as isolated access point, only Pi connects.
+Alternative configuration — not currently used. In this mode the EW11 runs its own WiFi access point and the Pi (or any device) connects to it as a client. Current setup uses Pi as AP instead; see [ew11-sta-settings.md](ew11-sta-settings.md).
 
 ## System Settings
 
@@ -10,7 +10,7 @@ Hardened settings - EW11 runs as isolated access point, only Pi connects.
 | User Name | admin |
 | Password | **strong password** |
 
-Web UI login. In AP mode, only the Pi can reach the config page. From a PC, access via SSH tunnel: `ssh -L 8080:10.10.100.254:80 makro@192.168.178.107` then open http://localhost:8080. Use a different password than the AP KEY.
+Web UI login. In AP mode, only the Pi can reach the config page. From a PC, access via SSH tunnel: `ssh -L 8080:10.10.100.254:80 -f -N makro@192.168.178.107` then open http://localhost:8080. Use a different password than the AP KEY.
 
 ### Basic Settings
 | Setting | Value |

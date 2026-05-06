@@ -10,8 +10,11 @@ Integrate Midea Thermal Arctic R290 10kW heat pump with Home Assistant via Modbu
 
 ### Architecture
 ```
-Heat Pump (RS-485 H1/H2) → EW11-A → WiFi → Home Assistant (Modbus TCP)
+Heat Pump (RS-485 H1/H2) → EW11-A → WiFi (AP: leni) → Pi wlan0 → Pi eth0 → FritzBox
+                                      10.10.100.131        10.10.100.1    192.168.178.107
 ```
+Pi runs wlan0 as an isolated AP ("leni", 10.10.100.x), EW11-A connects as STA client.
+Pi is on ethernet to FritzBox for Home Assistant traffic.
 
 ### EW11-A to Wired Controller Wiring
 - EW11-A A (+) → H1
@@ -25,17 +28,33 @@ Heat Pump (RS-485 H1/H2) → EW11-A → WiFi → Home Assistant (Modbus TCP)
 - Parity: None
 - Stop Bits: 1
 - Mode: Modbus TCP to RTU gateway (must be "Modbus" mode, not transparent TCP)
-- Full settings: [STA mode](resources/ew11-sta-settings.md) | [AP mode (hardened)](resources/ew11-ap-settings.md) | [Hardening plan](resources/ew11-hardening-plan.md)
+- WiFi: STA mode, connects to Pi AP "leni", gets IP 10.10.100.131 via DHCP reservation
+- CLI escape (`+++`): disabled (unnecessary attack surface)
+- Full settings: [Current STA settings](resources/ew11-sta-settings.md) | [AP mode (alternative)](resources/ew11-ap-settings.md)
+
+#### Accessing EW11-A Web UI
+EW11-A is on the isolated 10.10.100.x network — only reachable via SSH tunnel through the Pi:
+```bash
+ssh -L 8080:10.10.100.131:80 -f -N makro@192.168.178.107
+```
+Then open http://localhost:8080 (login: admin / see ap-settings.md)
+
+#### Factory Reset
+Hold reset button ~5 seconds → restores AP mode with default IP 10.10.100.254, login admin/admin.
+After reset, reconfigure STA mode to connect to "leni" and restore settings per [ew11-sta-settings.md](resources/ew11-sta-settings.md).
 
 ### Home Assistant Configuration
 - **Pi IP**: 192.168.178.107 (user: makro)
-- **EW11-A IP**: 192.168.178.121, TCP port 8899
+- **EW11-A IP**: 10.10.100.131 (reserved via DHCP on Pi AP), TCP port 8899
 - **Modbus slave address**: 2 (default on Midea pumps is 1)
 - Config file: `/root/homeassistant/config/configuration.yaml`
 - Docker container: `home-assistant`
 - Docker image: `ghcr.io/home-assistant/home-assistant:stable`
 - HA version: 2026.4.4
 - Backup: `/home/makro/ha_backup/ha-backup.sh`, daily 3am, uploads to `pcloud:backup/homeassistant`, 30-day retention
+- Pi eth0 on FritzBox LAN (ethernet), wlan0 as AP "leni" (isolated 10.10.100.x network)
+- EW11-A DHCP reservation: MAC `74:e9:d8:7f:71:1c` → `10.10.100.131` (in `/etc/NetworkManager/dnsmasq-shared.d/ew11-reservation.conf`)
+- Pi AP config: NetworkManager, `/etc/netplan/60-ethernet.yaml`, connection "leni" via nmcli
 
 ### System Configuration
 - Zone 1 only (no Zone 2)
@@ -144,4 +163,5 @@ Heat Pump (RS-485 H1/H2) → EW11-A → WiFi → Home Assistant (Modbus TCP)
 - [x] Create register scanner with documentation
 - [x] Publish on GitHub
 - [x] Add mode control (auto/heating/cooling) — enabled cooling via reg 210 bit 9, template select on reg 1
-- [ ] Improve EW11-A WiFi signal (-96 dBm is marginal)
+- [x] Harden EW11-A: isolated Pi AP network, disabled CLI escape, restricted web access
+- [ ] Improve EW11-A WiFi signal (currently marginal)
