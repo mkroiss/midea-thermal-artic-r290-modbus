@@ -29,6 +29,19 @@ views:
                 name: Error
                 icon: mdi:alert-circle-outline
 
+          # === Outdoor Temperature (7 days) ===
+          - type: statistics-graph
+            title: Outdoor Temperature (7 days)
+            entities:
+              - entity: sensor.hp_outdoor_temp
+                name: Outdoor (T4)
+            stat_types:
+              - mean
+              - min
+              - max
+            period: hour
+            days_to_show: 7
+
           # === Current Water Temps ===
           - type: horizontal-stack
             cards:
@@ -105,17 +118,6 @@ views:
                 name: ODU Power
                 icon: mdi:lightning-bolt
 
-          # === Power History ===
-          - type: statistics-graph
-            title: Power
-            entities:
-              - entity: sensor.hp_power_consumption
-              - entity: sensor.hp_odu_power
-            stat_types:
-              - mean
-            period: 5minute
-            days_to_show: 2
-
           # === Compressor & Pressure ===
           - type: horizontal-stack
             cards:
@@ -144,25 +146,29 @@ views:
                   yellow: 100
                   red: 0
 
-          # === Compressor History ===
-          - type: history-graph
-            title: Compressor Frequency
-            hours_to_show: 24
-            entities:
-              - entity: sensor.hp_compressor_frequency
-                name: Compressor Hz
-
-          # === Refrigerant Circuit (24h history) ===
-          - type: history-graph
-            title: Refrigerant Circuit
-            hours_to_show: 24
-            entities:
-              - entity: sensor.hp_condenser_temp
-                name: Condenser (T3)
-              - entity: sensor.hp_discharge_temp
-                name: Discharge (Tp)
-              - entity: sensor.hp_suction_temp
-                name: Suction (Th)
+          # === Power+Freq / Refrigerant ===
+          - type: horizontal-stack
+            cards:
+              - type: statistics-graph
+                title: Power & Compressor
+                entities:
+                  - entity: sensor.hp_power_consumption
+                  - entity: sensor.hp_odu_power
+                  - entity: sensor.hp_compressor_frequency
+                stat_types:
+                  - mean
+                period: 5minute
+                days_to_show: 2
+              - type: history-graph
+                title: Refrigerant Circuit
+                hours_to_show: 24
+                entities:
+                  - entity: sensor.hp_condenser_temp
+                    name: Condenser (T3)
+                  - entity: sensor.hp_discharge_temp
+                    name: Discharge (Tp)
+                  - entity: sensor.hp_suction_temp
+                    name: Suction (Th)
 
           # === COP History ===
           - type: statistics-graph

@@ -138,6 +138,7 @@ modbus:
         data_type: int16
         unit_of_measurement: "°C"
         device_class: temperature
+        state_class: measurement
         precision: 1
         scan_interval: 30
 
@@ -149,6 +150,7 @@ modbus:
         data_type: int16
         unit_of_measurement: "°C"
         device_class: temperature
+        state_class: measurement
         precision: 1
         scan_interval: 30
 
@@ -182,6 +184,7 @@ modbus:
         data_type: int16
         unit_of_measurement: "°C"
         device_class: temperature
+        state_class: measurement
         precision: 1
         scan_interval: 30
 
@@ -193,6 +196,7 @@ modbus:
         data_type: int16
         unit_of_measurement: "°C"
         device_class: temperature
+        state_class: measurement
         precision: 1
         scan_interval: 30
 
@@ -216,6 +220,7 @@ modbus:
         data_type: uint16
         unit_of_measurement: "kPa"
         device_class: pressure
+        state_class: measurement
         scan_interval: 30
 
       - name: "HP Low Pressure"
@@ -226,6 +231,7 @@ modbus:
         data_type: uint16
         unit_of_measurement: "kPa"
         device_class: pressure
+        state_class: measurement
         scan_interval: 30
 
       # === Electrical ===
@@ -258,6 +264,7 @@ modbus:
         data_type: uint16
         unit_of_measurement: "Hz"
         device_class: frequency
+        state_class: measurement
         scan_interval: 30
 
       - name: "HP Operating State"
@@ -286,6 +293,7 @@ modbus:
         unit_of_measurement: "m³/h"
         scale: 0.01
         precision: 2
+        state_class: measurement
         scan_interval: 30
 
       - name: "HP COP"
@@ -296,7 +304,6 @@ modbus:
         data_type: uint16
         scale: 0.01
         precision: 2
-        state_class: measurement
         scan_interval: 30
 
       # === Mode setting (raw) ===

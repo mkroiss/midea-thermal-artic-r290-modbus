@@ -13,10 +13,12 @@ Home Assistant integration for Midea M-Thermal Arctic R290 heat pumps via Modbus
 ### Wiring
 
 ```
-Heat Pump (Wired Controller) → EW11-A → WiFi → Home Assistant
-         H1 (-) → A                              Modbus TCP
+Heat Pump (Wired Controller) → EW11-A → WiFi (AP: leni) → Raspberry Pi → Home Assistant
+         H1 (-) → A                      10.10.100.131       10.10.100.1      Modbus TCP
          H2 (+) → B
 ```
+
+The Pi runs its own isolated WiFi AP ("leni", 10.10.100.x). The EW11-A connects to it as a client — it is not on the home network. The Pi connects to the home router via ethernet.
 
 ### EW11-A Configuration
 
@@ -26,10 +28,17 @@ Heat Pump (Wired Controller) → EW11-A → WiFi → Home Assistant
 - **Parity**: None
 - **Stop Bits**: 1
 - **TCP Port**: 8899
+- **WiFi**: STA mode, connects to Pi AP "leni"
 
 For full EW11-A settings see:
 - [Current STA mode settings](resources/ew11-sta-settings.md)
 - [AP mode settings (alternative)](resources/ew11-ap-settings.md)
+
+To access the EW11-A web UI from your PC, tunnel through the Pi:
+```bash
+ssh -L 8080:10.10.100.131:80 -f -N <user>@<pi-ip>
+```
+Then open http://localhost:8080.
 
 ### Modbus Settings
 
@@ -110,8 +119,8 @@ Config directory: `/root/homeassistant/config/`
 ## Installation
 
 1. Copy files to your Home Assistant config directory (`/root/homeassistant/config/`)
-2. Update IP address in `configuration.yaml` and Python scripts (default: 192.168.178.121)
-3. Update Modbus slave address in configs if using default (1) instead of 2
+2. Update EW11-A IP address in `configuration.yaml` (default in this project: `10.10.100.131`)
+3. Update Modbus slave address if using default (1) instead of 2
 4. Restart Home Assistant
 5. Dashboard appears automatically in sidebar as "Heat Pump"
 
@@ -122,7 +131,8 @@ Config directory: `/root/homeassistant/config/`
 - Mode control: Auto / Heating / Cooling (register 1)
 - Target temperature adjustment with +/- buttons
 - Energy tracking (daily/monthly/yearly)
-- Historical graphs for temperatures, power, COP
+- Historical graphs for temperatures, power, COP (10-day full resolution)
+- Long-term statistics (>10 days) for outdoor temp, water temps, compressor frequency, pressures, discharge temp, water flow
 
 ## Register Documentation
 
